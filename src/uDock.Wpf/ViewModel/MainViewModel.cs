@@ -1,6 +1,10 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using uDock.Wpf.Model;
@@ -52,9 +56,8 @@ namespace uDock.Wpf.ViewModel
 
         private LinkItem CreateNewLinkItem(LinkItem parent)
         {
-            return new LinkItem()
+            return new LinkItem(parent)
             {
-                Parent = parent,
                 Title = $"Link {LinkItem.TotalLinksCount}"
             };
         }
@@ -79,5 +82,46 @@ namespace uDock.Wpf.ViewModel
             else
                 LinkItems.Remove(SelectedLink);
         });
+
+        public void ExecuteLink()
+        {
+            if (SelectedLink == null)
+                return;
+            if (string.IsNullOrWhiteSpace(SelectedLink.Uri))
+                return;
+
+            try
+            {
+                System.Diagnostics.Process.Start(SelectedLink.Uri);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                MessageBox.Show("Unable to start link", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void HandleDrop(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                if (e.OriginalSource is TextBlock tb && tb.DataContext is LinkItem li)
+                {
+                    foreach (var fileName in fileNames)
+                    {
+                        li.Children.Add(LinkItem.FromFileName(fileName, li));
+                    }
+                }
+                else
+                {
+                    foreach (var fileName in fileNames)
+                    {
+                        LinkItems.Add(LinkItem.FromFileName(fileName));
+                    }
+                }
+            }
+        }
     }
 }
