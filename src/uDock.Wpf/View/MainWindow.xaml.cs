@@ -1,28 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using MediatR;
+using uDock.Wpf.Model;
+using uDock.Wpf.ViewModel;
 
-namespace uDock.Wpf
+namespace uDock.Wpf.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainViewModel _mainViewModel;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _mainViewModel = DataContext as MainViewModel;
+        }
+
+        private void TbTitle_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void TrvLinks_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            _mainViewModel.SelectedLink = e.NewValue as LinkItem;
         }
     }
 }

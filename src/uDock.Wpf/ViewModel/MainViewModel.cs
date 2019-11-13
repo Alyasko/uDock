@@ -1,4 +1,9 @@
+using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using System.Windows.Input;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
+using uDock.Wpf.Model;
 
 namespace uDock.Wpf.ViewModel
 {
@@ -30,5 +35,49 @@ namespace uDock.Wpf.ViewModel
             ////    // Code runs "for real"
             ////}
         }
+
+        public ObservableCollection<LinkItem> LinkItems { get; set; } = new ObservableCollection<LinkItem>();
+
+        private LinkItem _selectedLink;
+
+        public LinkItem SelectedLink
+        {
+            get { return _selectedLink; }
+            set
+            {
+                _selectedLink = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private LinkItem CreateNewLinkItem(LinkItem parent)
+        {
+            return new LinkItem()
+            {
+                Parent = parent,
+                Title = $"Link {LinkItem.TotalLinksCount}"
+            };
+        }
+
+        public ICommand AddCategoryCommand => new RelayCommand(() =>
+        {
+            LinkItems.Add(CreateNewLinkItem(null));
+        });
+
+        public ICommand AddSubCategoryCommand => new RelayCommand(() =>
+        {
+            if (SelectedLink == null)
+                return;
+
+            SelectedLink.Children.Add(CreateNewLinkItem(SelectedLink));
+        });
+
+        public ICommand RemoveCategoryCommand => new RelayCommand(() =>
+        {
+            if (SelectedLink?.Parent != null)
+                SelectedLink.Parent.Children.Remove(SelectedLink);
+            else
+                LinkItems.Remove(SelectedLink);
+        });
     }
 }
