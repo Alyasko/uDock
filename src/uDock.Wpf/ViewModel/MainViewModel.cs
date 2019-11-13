@@ -87,12 +87,23 @@ namespace uDock.Wpf.ViewModel
         {
             if (SelectedLink == null)
                 return;
-            if (string.IsNullOrWhiteSpace(SelectedLink.Uri))
+
+            if(SelectedLink.Children.Count == 0 && string.IsNullOrWhiteSpace(SelectedLink.Uri))
                 return;
 
             try
             {
-                System.Diagnostics.Process.Start(SelectedLink.Uri);
+                if (SelectedLink.Children.Count > 0)
+                {
+                    foreach (var item in SelectedLink.Children)
+                    {
+                        Process.Start(item.Uri);
+                    }
+                }
+                else
+                {
+                    Process.Start(SelectedLink.Uri);
+                }
             }
             catch (Exception e)
             {

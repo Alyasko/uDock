@@ -35,17 +35,20 @@ namespace uDock.Wpf.View
             _mainViewModel.SelectedLink = e.NewValue as LinkItem;
         }
 
-        private void TrvLinks_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if(_mainViewModel.SelectedLink == null)
-                return;
-
-            _mainViewModel.ExecuteLink();
-        }
-
         private void TrvLinks_OnDrop(object sender, DragEventArgs e)
         {
             _mainViewModel.HandleDrop(e);
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (e.OriginalSource is Button btn && btn.DataContext is LinkItem li)
+                _mainViewModel.SelectedLink = li;
+
+            if (_mainViewModel.SelectedLink == null)
+                return;
+
+            _mainViewModel.ExecuteLink();
         }
     }
 }

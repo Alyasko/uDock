@@ -1,11 +1,14 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using LiteDB;
 
 namespace uDock.Wpf.Model
 {
-    public class LinkItem
+    public class LinkItem : INotifyPropertyChanged
     {
         public static int TotalLinksCount = 0;
+        private string _title;
 
         public LinkItem(LinkItem parent)
         {
@@ -13,7 +16,15 @@ namespace uDock.Wpf.Model
             Parent = parent;
         }
 
-        public string Title { get; set; }
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+                OnPropertyChanged(nameof(Display));
+            }
+        }
 
         public int Kind { get; set; }
 
@@ -25,6 +36,8 @@ namespace uDock.Wpf.Model
 
         public ObjectId Id { get; set; } = ObjectId.NewObjectId();
 
+        public string Display => $"{Title}" + (string.IsNullOrWhiteSpace(Uri) ? "": $" [{Uri}]");
+
         public static LinkItem FromFileName(string fullFileName, LinkItem parent = null)
         {
             return new LinkItem(parent)
@@ -32,6 +45,13 @@ namespace uDock.Wpf.Model
                 Title = System.IO.Path.GetFileName(fullFileName),
                 Uri = fullFileName
             };
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
