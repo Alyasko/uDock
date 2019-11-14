@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using MediatR;
 using uDock.Wpf.Model;
 using uDock.Wpf.ViewModel;
+using Button = System.Windows.Controls.Button;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace uDock.Wpf.View
 {
@@ -68,6 +70,19 @@ namespace uDock.Wpf.View
                 }
 
             }
+        }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            //var width = this.Width;
+            //var height = this.Height;
+
+            //var wWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
+            //var wHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
+
+            //var r = Screen.PrimaryScreen.WorkingArea;
+
+            ////Top = 
         }
     }
 }

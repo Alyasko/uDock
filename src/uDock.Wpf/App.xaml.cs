@@ -25,5 +25,10 @@ namespace uDock.Wpf
                 }
             };
         }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+        }
     }
 }

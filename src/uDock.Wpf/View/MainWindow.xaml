@@ -6,12 +6,16 @@
         xmlns:local="clr-namespace:uDock.Wpf"
         xmlns:model="clr-namespace:uDock.Wpf.Model"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         WindowStyle="None"
         ResizeMode="NoResize"
         BorderBrush="BurlyWood"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
+        ShowInTaskbar="False"
         BorderThickness="1"
+        Loaded="MainWindow_OnLoaded"
+        WindowState="{Binding WindowState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         x:Name="WindowMain"
         Title="MainWindow" Height="450" Width="600">
     <Grid>
@@ -19,6 +23,15 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
+
+        <tb:TaskbarIcon x:Name="TrayIcon"
+                        Visibility="Visible"
+                        ToolTipText="uDock"
+                        IconSource="/Resources/arrows-white.ico"
+                        MenuActivation="LeftOrRightClick"
+                        LeftClickCommand="{Binding TrayIconClickCommand}"
+                        PopupActivation="DoubleClick"
+        />
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -39,7 +52,7 @@
                 <Button Margin="5 5 10 5" Padding="15 3" Command="{Binding CloseCommand}">Close</Button>
             </StackPanel>
 
-            <TextBox Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="0" Padding="6 3" Margin="10 5">Filter</TextBox>
+            <TextBox Visibility="Collapsed" Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="0" Padding="6 3" Margin="10 5">Filter</TextBox>
 
             <TreeView AllowDrop="True" Drop="TrvLinks_OnDrop" SelectedItemChanged="TrvLinks_OnSelectedItemChanged" ItemsSource="{Binding LinkItems}" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10" Name="TrvLinks">
                 <TreeView.ItemTemplate>
@@ -62,7 +75,7 @@
                     </Style>
                 </TreeView.ItemContainerStyle>
             </TreeView>
-
+             
 
 
         </Grid>

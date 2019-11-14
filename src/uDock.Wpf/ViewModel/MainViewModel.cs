@@ -61,6 +61,18 @@ namespace uDock.Wpf.ViewModel
             }
         }
 
+        private WindowState _windowState;
+
+        public WindowState WindowState
+        {
+            get { return _windowState; }
+            set
+            {
+                _windowState = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private LinkItem CreateNewLinkItem(LinkItem parent)
         {
             var link = new LinkItem(parent?.Id)
@@ -126,6 +138,18 @@ namespace uDock.Wpf.ViewModel
             }
             else
                 LinkItems.Remove(SelectedLink);
+        });
+
+        public ICommand TrayIconClickCommand => new RelayCommand(() =>
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                WindowState = WindowState.Minimized;
+            }
+            else
+            {
+                WindowState = WindowState.Normal;
+            }
         });
 
         private void GetUrisToExecute(LinkItem rootItem, List<string> uris)
