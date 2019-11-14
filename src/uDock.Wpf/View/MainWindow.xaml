@@ -12,53 +12,109 @@
         BorderBrush="BurlyWood"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         BorderThickness="1"
-        Title="MainWindow" Height="450" Width="400">
+        x:Name="WindowMain"
+        Title="MainWindow" Height="450" Width="600">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition />
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
 
-        <TextBlock x:Name="TbTitle" MouseDown="TbTitle_OnMouseDown" Padding="10 5" FontSize="20" Grid.ColumnSpan="2">uDock</TextBlock>
-        <Button Grid.Row="0" Margin="10 5 10 5" Padding="15 3" Grid.Column="1">Close</Button>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TextBox Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="0" Padding="6 3" Margin="10 5">Filter</TextBox>
+            <TextBlock x:Name="TbTitle" MouseDown="TbTitle_OnMouseDown" Padding="10 5" FontSize="20" Grid.ColumnSpan="2">uDock</TextBlock>
 
-        <TreeView AllowDrop="True" Drop="TrvLinks_OnDrop" SelectedItemChanged="TrvLinks_OnSelectedItemChanged" ItemsSource="{Binding LinkItems}" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10" Name="TrvLinks">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type model:LinkItem}" ItemsSource="{Binding Children}">
-                    <Grid Margin="1">
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                <ToggleButton IsChecked="True" Margin="5 5 5 5" Padding="15 3" x:Name="BtnSetupMode" Click="BtnSetupMode_OnClick">Setup Mode</ToggleButton>
+                <Button Margin="5 5 10 5" Padding="15 3" Command="{Binding CloseCommand}">Close</Button>
+            </StackPanel>
+
+            <TextBox Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="0" Padding="6 3" Margin="10 5">Filter</TextBox>
+
+            <TreeView AllowDrop="True" Drop="TrvLinks_OnDrop" SelectedItemChanged="TrvLinks_OnSelectedItemChanged" ItemsSource="{Binding LinkItems}" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10" Name="TrvLinks">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type model:LinkItem}" ItemsSource="{Binding Children}">
+                        <Grid Margin="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="BtnRunLink" Click="ButtonBase_OnClick" Background="Transparent" Padding="5 3" BorderThickness="0">
+                                <Image Width="16" Source="/Resources/arrows.png"></Image>
+                            </Button>
+                            <TextBlock Grid.Column="1" Padding="8 3" Text="{Binding Display}" />
+                        </Grid>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="True"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
+
+
+
+        </Grid>
+
+        <Grid Grid.Column="1" Width="250" x:Name="GridSetup">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <GroupBox Header="uDock">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Button Margin="5" Command="{Binding LoadProjectCommand}">Load</Button>
+                    <Button Grid.Row="0" Grid.Column="1" Command="{Binding SaveProjectCommand}" Margin="5">Save</Button>
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Header="Categories">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Margin="5 5 5 0" >Title:</TextBlock>
+                        <TextBox x:Name="TbCategoryName" Margin="5 5 5 5" Padding="6 3" Text="{Binding SelectedLink.Title, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        
+                        <TextBlock Margin="5 5 5 0" >Uri:</TextBlock>
+                        <TextBox x:Name="TbUri" Margin="5 5 5 5" Padding="6 3" Text="{Binding SelectedLink.Uri, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="BtnRunLink" Click="ButtonBase_OnClick" Background="Transparent" Padding="5 3" BorderThickness="0">
-                            <Image Width="16" Source="/Resources/arrows.png"></Image>
-                        </Button>
-                        <TextBlock Grid.Column="1" Padding="8 3" Text="{Binding Display}" />
+                        <Button Grid.Column="0" Command="{Binding AddCategoryCommand}" x:Name="BtnCategoryAdd" Margin="5 5 0 5" Padding="15 3">+</Button>
+                        <Button Grid.Column="1" Command="{Binding AddSubCategoryCommand}" x:Name="BtnSubCategoryAdd" Margin="5 5 0 5" Padding="15 3">+ Sub</Button>
+                        <Button Grid.Column="2" Command="{Binding RemoveCategoryCommand}" x:Name="BtnCategoryRemove" Margin="5 5 5 5" Padding="15 3">Delete</Button>
                     </Grid>
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="{x:Type TreeViewItem}">
-                    <Setter Property="IsExpanded" Value="True"/>
-                </Style>
-            </TreeView.ItemContainerStyle>
-        </TreeView>
-
-        <GroupBox Header="Categories" Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0">
-            <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding AddCategoryCommand}" x:Name="BtnCategoryAdd" Margin="5 10 0 10" Padding="15 3">Add</Button>
-                <Button Command="{Binding AddSubCategoryCommand}" x:Name="BtnSubCategoryAdd" Margin="5 10 0 10" Padding="15 3">Add Sub</Button>
-                <Button Command="{Binding RemoveCategoryCommand}" x:Name="BtnCategoryRemove" Margin="5 10 0 10" Padding="15 3">Remove</Button>
-                <TextBox x:Name="TbCategoryName" Margin="5 10 10 10" Padding="6 3" Width="150" Text="{Binding SelectedLink.Title, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </StackPanel>
-        </GroupBox>
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </Window>

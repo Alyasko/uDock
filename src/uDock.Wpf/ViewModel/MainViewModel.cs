@@ -1,12 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using LiteDB;
+using Microsoft.Win32;
 using uDock.Wpf.Model;
 
 namespace uDock.Wpf.ViewModel
@@ -40,7 +45,9 @@ namespace uDock.Wpf.ViewModel
             ////}
         }
 
+        private Project _project;
         public ObservableCollection<LinkItem> LinkItems { get; set; } = new ObservableCollection<LinkItem>();
+        private readonly Dictionary<ObjectId, LinkItem> _linksDict = new Dictionary<ObjectId, LinkItem>();
 
         private LinkItem _selectedLink;
 
@@ -56,10 +63,12 @@ namespace uDock.Wpf.ViewModel
 
         private LinkItem CreateNewLinkItem(LinkItem parent)
         {
-            return new LinkItem(parent)
+            var link = new LinkItem(parent?.Id)
             {
                 Title = $"Link {LinkItem.TotalLinksCount}"
             };
+            _linksDict.Add(link.Id, link);
+            return link;
         }
 
         public ICommand AddCategoryCommand => new RelayCommand(() =>
@@ -75,40 +84,102 @@ namespace uDock.Wpf.ViewModel
             SelectedLink.Children.Add(CreateNewLinkItem(SelectedLink));
         });
 
+        public ICommand CloseCommand => new RelayCommand(() =>
+        {
+            App.Current.Shutdown();
+        });
+
+        public ICommand LoadProjectCommand => new RelayCommand(() =>
+        {
+            var ofd = new OpenFileDialog();
+            ofd.Multiselect = false;
+            ofd.Filter = "uDock project files | *.udock";
+            if (ofd.ShowDialog().Value)
+            {
+                var file = ofd.FileName;
+                _project = Project.Load(file);
+                foreach (var item in _project.Items)
+                {
+                    LinkItems.Add(item);
+                }
+            }
+        });
+
+        public ICommand SaveProjectCommand => new RelayCommand(() =>
+        {
+            var sfd = new SaveFileDialog();
+            sfd.Filter = "uDock project files | *.udock";
+            if (sfd.ShowDialog().Value)
+            {
+                var file = sfd.FileName;
+                var _project = Project.Save(LinkItems.ToList(), file);
+            }
+        });
+
         public ICommand RemoveCategoryCommand => new RelayCommand(() =>
         {
-            if (SelectedLink?.Parent != null)
-                SelectedLink.Parent.Children.Remove(SelectedLink);
+            if (SelectedLink?.ParentId != null)
+            {
+                if (!_linksDict.TryGetValue(SelectedLink?.ParentId, out var linkId))
+                    return;
+                linkId.Children.Remove(SelectedLink);
+            }
             else
                 LinkItems.Remove(SelectedLink);
         });
+
+        private void GetUrisToExecute(LinkItem rootItem, List<string> uris)
+        {
+            if (rootItem.Children.Count == 0)
+            {
+                if (!string.IsNullOrWhiteSpace(rootItem.Uri))
+                    uris.Add(rootItem.Uri);
+            }
+            else
+            {
+                foreach (var item in rootItem.Children)
+                {
+                    GetUrisToExecute(item, uris);
+                }
+            }
+        }
 
         public void ExecuteLink()
         {
             if (SelectedLink == null)
                 return;
 
-            if(SelectedLink.Children.Count == 0 && string.IsNullOrWhiteSpace(SelectedLink.Uri))
-                return;
+            var uris = new List<string>();
+            GetUrisToExecute(SelectedLink, uris);
 
-            try
+            var proceed = true;
+
+            if (uris.Count > 5)
             {
-                if (SelectedLink.Children.Count > 0)
+                if (MessageBox.Show($"Are you sure you want to start {uris.Count} processes?", "Question",
+                        MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                 {
-                    foreach (var item in SelectedLink.Children)
-                    {
-                        Process.Start(item.Uri);
-                    }
-                }
-                else
-                {
-                    Process.Start(SelectedLink.Uri);
+                    proceed = false;
                 }
             }
-            catch (Exception e)
+
+            if (proceed)
             {
-                Debug.WriteLine(e.Message);
-                MessageBox.Show("Unable to start link", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                foreach (var uri in uris)
+                {
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            Process.Start(uri);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine(e.Message);
+                            MessageBox.Show($"Unable to start link {uri}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    });
+                }
             }
         }
 
@@ -122,14 +193,18 @@ namespace uDock.Wpf.ViewModel
                 {
                     foreach (var fileName in fileNames)
                     {
-                        li.Children.Add(LinkItem.FromFileName(fileName, li));
+                        var link = LinkItem.FromFileName(fileName, li);
+                        _linksDict.Add(link.Id, link);
+                        li.Children.Add(link);
                     }
                 }
                 else
                 {
                     foreach (var fileName in fileNames)
                     {
-                        LinkItems.Add(LinkItem.FromFileName(fileName));
+                        var link = LinkItem.FromFileName(fileName);
+                        _linksDict.Add(link.Id, link);
+                        LinkItems.Add(link);
                     }
                 }
             }

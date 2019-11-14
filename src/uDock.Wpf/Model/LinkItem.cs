@@ -9,11 +9,12 @@ namespace uDock.Wpf.Model
     {
         public static int TotalLinksCount = 0;
         private string _title;
+        private string _uri;
 
-        public LinkItem(LinkItem parent)
+        public LinkItem(ObjectId parentId)
         {
             TotalLinksCount++;
-            Parent = parent;
+            ParentId = parentId;
         }
 
         public string Title
@@ -28,11 +29,19 @@ namespace uDock.Wpf.Model
 
         public int Kind { get; set; }
 
-        public string Uri { get; set; }
+        public string Uri
+        {
+            get => _uri;
+            set
+            {
+                _uri = value;
+                OnPropertyChanged(nameof(Display));
+            }
+        }
 
         public ObservableCollection<LinkItem> Children { get; } = new ObservableCollection<LinkItem>();
 
-        public LinkItem Parent { get; set; }
+        public ObjectId ParentId { get; set; }
 
         public ObjectId Id { get; set; } = ObjectId.NewObjectId();
 
@@ -40,7 +49,7 @@ namespace uDock.Wpf.Model
 
         public static LinkItem FromFileName(string fullFileName, LinkItem parent = null)
         {
-            return new LinkItem(parent)
+            return new LinkItem(parent?.Id)
             {
                 Title = System.IO.Path.GetFileName(fullFileName),
                 Uri = fullFileName

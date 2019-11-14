@@ -50,5 +50,24 @@ namespace uDock.Wpf.View
 
             _mainViewModel.ExecuteLink();
         }
+
+        private void BtnSetupMode_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (BtnSetupMode.IsChecked != null)
+            {
+                var gridWidth = GridSetup.Width;
+                if (BtnSetupMode.IsChecked.Value)
+                {
+                    GridSetup.Visibility = Visibility.Visible;
+                    WindowMain.Width += gridWidth;
+                }
+                else
+                {
+                    GridSetup.Visibility = Visibility.Collapsed;
+                    WindowMain.Width -= gridWidth;
+                }
+
+            }
+        }
     }
 }

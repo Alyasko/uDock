@@ -5,6 +5,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Newtonsoft.Json;
+using uDock.Wpf.Model;
 
 namespace uDock.Wpf
 {
@@ -13,5 +15,15 @@ namespace uDock.Wpf
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
+            {
+                Converters = new List<JsonConverter>()
+                {
+                    new ObjectIdConverter()
+                }
+            };
+        }
     }
 }
