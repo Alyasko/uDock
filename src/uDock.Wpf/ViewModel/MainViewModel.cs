@@ -1,3 +1,7 @@
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
+using LiteDB;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,12 +11,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Shapes;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
-using LiteDB;
-using Microsoft.Win32;
-using uDock.Wpf.Model;
+using uDock.Core;
+using uDock.Core.Model;
 
 namespace uDock.Wpf.ViewModel
 {
@@ -30,24 +30,17 @@ namespace uDock.Wpf.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
+        private readonly ApplicationState _app;
+
+        public ObservableCollection<LinkItem> LinkItems => _app.LinkItems;
+
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel()
+        public MainViewModel(ApplicationState app)
         {
-            ////if (IsInDesignMode)
-            ////{
-            ////    // Code runs in Blend --> create design time data.
-            ////}
-            ////else
-            ////{
-            ////    // Code runs "for real"
-            ////}
+            _app = app;
         }
-
-        private Project _project;
-        public ObservableCollection<LinkItem> LinkItems { get; set; } = new ObservableCollection<LinkItem>();
-        private readonly Dictionary<ObjectId, LinkItem> _linksDict = new Dictionary<ObjectId, LinkItem>();
 
         private LinkItem _selectedLink;
 
@@ -73,71 +66,9 @@ namespace uDock.Wpf.ViewModel
             }
         }
 
-        private LinkItem CreateNewLinkItem(LinkItem parent)
-        {
-            var link = new LinkItem(parent?.Id)
-            {
-                Title = $"Link {LinkItem.TotalLinksCount}"
-            };
-            _linksDict.Add(link.Id, link);
-            return link;
-        }
-
-        public ICommand AddCategoryCommand => new RelayCommand(() =>
-        {
-            LinkItems.Add(CreateNewLinkItem(null));
-        });
-
-        public ICommand AddSubCategoryCommand => new RelayCommand(() =>
-        {
-            if (SelectedLink == null)
-                return;
-
-            SelectedLink.Children.Add(CreateNewLinkItem(SelectedLink));
-        });
-
         public ICommand CloseCommand => new RelayCommand(() =>
         {
             App.Current.Shutdown();
-        });
-
-        public ICommand LoadProjectCommand => new RelayCommand(() =>
-        {
-            var ofd = new OpenFileDialog();
-            ofd.Multiselect = false;
-            ofd.Filter = "uDock project files | *.udock";
-            if (ofd.ShowDialog().Value)
-            {
-                var file = ofd.FileName;
-                _project = Project.Load(file);
-                foreach (var item in _project.Items)
-                {
-                    LinkItems.Add(item);
-                }
-            }
-        });
-
-        public ICommand SaveProjectCommand => new RelayCommand(() =>
-        {
-            var sfd = new SaveFileDialog();
-            sfd.Filter = "uDock project files | *.udock";
-            if (sfd.ShowDialog().Value)
-            {
-                var file = sfd.FileName;
-                var _project = Project.Save(LinkItems.ToList(), file);
-            }
-        });
-
-        public ICommand RemoveCategoryCommand => new RelayCommand(() =>
-        {
-            if (SelectedLink?.ParentId != null)
-            {
-                if (!_linksDict.TryGetValue(SelectedLink?.ParentId, out var linkId))
-                    return;
-                linkId.Children.Remove(SelectedLink);
-            }
-            else
-                LinkItems.Remove(SelectedLink);
         });
 
         public ICommand TrayIconClickCommand => new RelayCommand(() =>
@@ -203,33 +134,6 @@ namespace uDock.Wpf.ViewModel
                             MessageBox.Show($"Unable to start link {uri}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     });
-                }
-            }
-        }
-
-        public void HandleDrop(DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                if (e.OriginalSource is TextBlock tb && tb.DataContext is LinkItem li)
-                {
-                    foreach (var fileName in fileNames)
-                    {
-                        var link = LinkItem.FromFileName(fileName, li);
-                        _linksDict.Add(link.Id, link);
-                        li.Children.Add(link);
-                    }
-                }
-                else
-                {
-                    foreach (var fileName in fileNames)
-                    {
-                        var link = LinkItem.FromFileName(fileName);
-                        _linksDict.Add(link.Id, link);
-                        LinkItems.Add(link);
-                    }
                 }
             }
         }

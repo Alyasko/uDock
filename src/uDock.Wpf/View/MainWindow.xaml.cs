@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using MediatR;
-using uDock.Wpf.Model;
+using uDock.Core.Model;
 using uDock.Wpf.ViewModel;
 using Button = System.Windows.Controls.Button;
 using DragEventArgs = System.Windows.DragEventArgs;
+using MessageBox = System.Windows.MessageBox;
 
 namespace uDock.Wpf.View
 {
@@ -17,7 +19,7 @@ namespace uDock.Wpf.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        private MainViewModel _mainViewModel;
+        private readonly MainViewModel _mainViewModel;
 
         public MainWindow()
         {
@@ -37,39 +39,10 @@ namespace uDock.Wpf.View
             _mainViewModel.SelectedLink = e.NewValue as LinkItem;
         }
 
-        private void TrvLinks_OnDrop(object sender, DragEventArgs e)
+        private void BtnSettings_OnClick(object sender, RoutedEventArgs e)
         {
-            _mainViewModel.HandleDrop(e);
-        }
-
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (e.OriginalSource is Button btn && btn.DataContext is LinkItem li)
-                _mainViewModel.SelectedLink = li;
-
-            if (_mainViewModel.SelectedLink == null)
-                return;
-
-            _mainViewModel.ExecuteLink();
-        }
-
-        private void BtnSetupMode_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (BtnSetupMode.IsChecked != null)
-            {
-                var gridWidth = GridSetup.Width;
-                if (BtnSetupMode.IsChecked.Value)
-                {
-                    GridSetup.Visibility = Visibility.Visible;
-                    WindowMain.Width += gridWidth;
-                }
-                else
-                {
-                    GridSetup.Visibility = Visibility.Collapsed;
-                    WindowMain.Width -= gridWidth;
-                }
-
-            }
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
@@ -83,6 +56,20 @@ namespace uDock.Wpf.View
             //var r = Screen.PrimaryScreen.WorkingArea;
 
             ////Top = 
+        }
+
+        private void GridLinkItem_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                if (e.OriginalSource is TextBlock btn && btn.DataContext is LinkItem li)
+                    _mainViewModel.SelectedLink = li;
+
+                if (_mainViewModel.SelectedLink == null)
+                    return;
+
+                _mainViewModel.ExecuteLink();
+            }
         }
     }
 }

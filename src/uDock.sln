@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uDock.Wpf", "uDock.Wpf\uDock.Wpf.csproj", "{F064ED59-4CF7-4967-8E4F-8735D3A74CE4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uDock.Core", "uDock.Core\uDock.Core.csproj", "{6FECE44E-D03C-47AA-A72E-4ECD8CEBEF9A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F064ED59-4CF7-4967-8E4F-8735D3A74CE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F064ED59-4CF7-4967-8E4F-8735D3A74CE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F064ED59-4CF7-4967-8E4F-8735D3A74CE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FECE44E-D03C-47AA-A72E-4ECD8CEBEF9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FECE44E-D03C-47AA-A72E-4ECD8CEBEF9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FECE44E-D03C-47AA-A72E-4ECD8CEBEF9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FECE44E-D03C-47AA-A72E-4ECD8CEBEF9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -16,6 +16,7 @@ using CommonServiceLocator;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using MediatR;
+using uDock.Core;
 
 namespace uDock.Wpf.ViewModel
 {
@@ -43,17 +44,24 @@ namespace uDock.Wpf.ViewModel
             ////    SimpleIoc.Default.Register<IDataService, DataService>();
             ////}
 
-            SimpleIoc.Default.Register<MainViewModel>();
+
+            // View models.
+            Register<MainViewModel>();
+            Register<SettingsViewModel>();
+
+            // App logic.
+            Register<ApplicationState>();
         }
 
-        public MainViewModel Main
+        private void Register<T>() where T : class
         {
-            get
-            {
-                return ServiceLocator.Current.GetInstance<MainViewModel>();
-            }
+            SimpleIoc.Default.Register<T>();
         }
-        
+
+        public MainViewModel Main => ServiceLocator.Current.GetInstance<MainViewModel>();
+
+        public SettingsViewModel Settings => ServiceLocator.Current.GetInstance<SettingsViewModel>();
+
         public static void Cleanup()
         {
             // TODO Clear the ViewModels

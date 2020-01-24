@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
-using uDock.Wpf.Model;
+using uDock.Core.Model;
 
 namespace uDock.Wpf
 {

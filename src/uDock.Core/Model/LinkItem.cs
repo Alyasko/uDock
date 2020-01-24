@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using LiteDB;
 
-namespace uDock.Wpf.Model
+namespace uDock.Core.Model
 {
     public class LinkItem : INotifyPropertyChanged
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 
-namespace uDock.Wpf.Model
+namespace uDock.Core.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class Project
