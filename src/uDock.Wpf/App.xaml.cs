@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Windows;
-using Newtonsoft.Json;
+using System.Windows.Navigation;
 using uDock.Core.Model;
+using uDock.Wpf.View;
+using uDock.Wpf.ViewModel;
 
 namespace uDock.Wpf
 {
@@ -26,9 +25,14 @@ namespace uDock.Wpf
             };
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override void OnLoadCompleted(NavigationEventArgs e)
         {
-            base.OnStartup(e);
+            base.OnLoadCompleted(e);
+        }
+
+        protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+        {
+            base.OnSessionEnding(e);
         }
     }
 }

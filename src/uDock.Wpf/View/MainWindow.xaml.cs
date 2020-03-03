@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using MediatR;
+using System.Windows.Media.Animation;
 using uDock.Core.Model;
 using uDock.Wpf.ViewModel;
-using Button = System.Windows.Controls.Button;
-using DragEventArgs = System.Windows.DragEventArgs;
-using MessageBox = System.Windows.MessageBox;
 
 namespace uDock.Wpf.View
 {
@@ -45,17 +42,35 @@ namespace uDock.Wpf.View
             settingsWindow.ShowDialog();
         }
 
+        private void PositionWindow()
+        {
+            var location = _mainViewModel.WindowService.LoadLocation();
+            if (location == null)
+                return;
+
+            Top = location.Top;
+            Left = location.Left;
+        }
+
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            //var width = this.Width;
-            //var height = this.Height;
+            PositionWindow();
 
-            //var wWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
-            //var wHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
+            var wWidth = SystemParameters.PrimaryScreenWidth;
+            var wHeight = SystemParameters.PrimaryScreenHeight;
 
-            //var r = Screen.PrimaryScreen.WorkingArea;
+            _mainViewModel.WindowService.ScreenSize = new SizeF((float)wWidth, (float)wHeight);
 
-            ////Top = 
+            _mainViewModel.WindowService.WindowPositionChangeRequested += WindowServiceWindowPositionChangeRequested;
+        }
+
+        private void WindowServiceWindowPositionChangeRequested(object sender, WindowPositionChangeRequestedEventArgs e)
+        {
+            if (e.NewTop != null)
+                Top = e.NewTop.Value;
+
+            if (e.NewLeft != null)
+                Left = e.NewLeft.Value;
         }
 
         private void GridLinkItem_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -70,6 +85,36 @@ namespace uDock.Wpf.View
 
                 _mainViewModel.ExecuteLink();
             }
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            _mainViewModel.WindowService.SaveLocation(Top, Left);
+        }
+
+        private void TrayIcon_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void TrayIcon_OnTrayLeftMouseUp(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.WindowService.Toggle();
+        }
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            _mainViewModel.WindowService.ResetPosition();
+        }
+
+        private void MainWindow_OnLocationChanged(object sender, EventArgs e)
+        {
+            _mainViewModel.WindowService.WindowLocation = new PointF((float)Left, (float)Top);
+        }
+
+        private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            _mainViewModel.WindowService.WindowSize = new SizeF((float)ActualWidth, (float)ActualHeight);
         }
     }
 }

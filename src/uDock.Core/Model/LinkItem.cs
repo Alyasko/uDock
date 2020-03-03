@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using LiteDB;
@@ -8,7 +9,7 @@ namespace uDock.Core.Model
     public class LinkItem : INotifyPropertyChanged
     {
         public static int TotalLinksCount = 0;
-        private string _title;
+        private string _title = string.Empty;
         private string _uri;
 
         public LinkItem(ObjectId parentId)
@@ -44,6 +45,8 @@ namespace uDock.Core.Model
         public ObjectId ParentId { get; set; }
 
         public ObjectId Id { get; set; } = ObjectId.NewObjectId();
+
+        public int Order { get; set; } = 0;
 
         public string Display => $"{Title}" + (string.IsNullOrWhiteSpace(Uri) ? "": $" [{Uri}]");
 

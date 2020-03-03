@@ -5,26 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:model="clr-namespace:uDock.Core.Model;assembly=uDock.Core"
+        xmlns:helpers="clr-namespace:uDock.Wpf.Helpers"
+        Topmost="True"
         mc:Ignorable="d"
         WindowStyle="None"
         ResizeMode="NoResize"
         BorderBrush="BurlyWood"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
+        SizeChanged="MainWindow_OnSizeChanged"
         ShowInTaskbar="False"
+        LocationChanged="MainWindow_OnLocationChanged"
         BorderThickness="1"
         Loaded="MainWindow_OnLoaded"
+        Closing="MainWindow_OnClosing"
         WindowState="{Binding WindowState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
         x:Name="WindowMain"
         Title="MainWindow" Height="450" Width="600">
+    <Window.Resources>
+        <Storyboard x:Key="SlideIn">
+            <DoubleAnimation x:Name="MoveAnimation" From="0" To="-505" 
+                             Duration="00:00:4"
+                             Storyboard.TargetProperty="Top"
+                             Storyboard.TargetName="WindowMain" 
+            />
+        </Storyboard>
+        <helpers:BindingProxy x:Key="BindingProxyWindow" Data="{Binding}" />
+    </Window.Resources>
     <Grid>
         <tb:TaskbarIcon x:Name="TrayIcon"
                         Visibility="Visible"
                         ToolTipText="uDock"
                         IconSource="/Resources/arrows-white.ico"
-                        MenuActivation="LeftOrRightClick"
-                        LeftClickCommand="{Binding TrayIconClickCommand}"
-                        PopupActivation="DoubleClick"
-        />
+                        MenuActivation="RightClick"
+                        TrayLeftMouseUp="TrayIcon_OnTrayLeftMouseUp">
+
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Show"></MenuItem>
+                    <MenuItem Header="Reset window location" Click="MenuItem_OnClick"></MenuItem>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -42,7 +63,7 @@
 
             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
                 <Button Margin="5 5 5 5" Padding="15 3" x:Name="BtnSettings" Click="BtnSettings_OnClick">Settings</Button>
-                <Button Margin="5 5 10 5" Padding="15 3" Command="{Binding CloseCommand}">Close</Button>
+                <Button Margin="5 5 10 5" Padding="15 3" Command="{Binding CloseCommand}">Exit UDock</Button>
             </StackPanel>
 
             <TextBox Visibility="Collapsed" Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="0" Padding="6 3" Margin="10 5">Filter</TextBox>
@@ -51,13 +72,19 @@
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type model:LinkItem}" ItemsSource="{Binding Children}">
                         <Grid Margin="1" x:Name="GridLinkItem" MouseLeftButtonDown="GridLinkItem_OnMouseLeftButtonDown">
+                            <Grid.ContextMenu>
+                                <ContextMenu x:Name="LinkContextMenu" StaysOpen="true">
+                                    <MenuItem Header="Run" Command="{Binding Data.RunLinkCommand, Source={StaticResource BindingProxyWindow}}"/>
+                                    <MenuItem Header="Open containing folder" Command="{Binding Data.OpenLinkDirectoryCommand, Source={StaticResource BindingProxyWindow}}"/>
+                                </ContextMenu>
+                            </Grid.ContextMenu>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button x:Name="BtnRunLink" Background="Transparent" Padding="5 3" BorderThickness="0">
+                            <!--<Button x:Name="BtnRunLink" Background="Transparent" Padding="5 3" BorderThickness="0">
                                 <Image Width="16" Source="/Resources/arrows.png"></Image>
-                            </Button>
+                            </Button>-->
                             <TextBlock Grid.Column="1" Padding="8 3" Text="{Binding Display}" />
                         </Grid>
                     </HierarchicalDataTemplate>

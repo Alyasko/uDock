@@ -12,10 +12,10 @@
   See http://www.galasoft.ch/mvvm
 */
 
+using System;
+using System.Drawing;
 using CommonServiceLocator;
-using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
-using MediatR;
 using uDock.Core;
 
 namespace uDock.Wpf.ViewModel
@@ -51,9 +51,16 @@ namespace uDock.Wpf.ViewModel
 
             // App logic.
             Register<ApplicationState>();
+            Register<LinkService>();
+            Register<WindowService>();
         }
 
         private void Register<T>() where T : class
+        {
+            SimpleIoc.Default.Register<T>();
+        }
+
+        private void Register<T>(Func<T> factory) where T : class
         {
             SimpleIoc.Default.Register<T>();
         }

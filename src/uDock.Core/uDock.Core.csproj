@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,13 +51,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationState.cs" />
+    <Compile Include="LinkService.cs" />
+    <Compile Include="Model\AppConfig.cs" />
     <Compile Include="Model\LinkItem.cs" />
     <Compile Include="Model\ObjectIdConverter.cs" />
     <Compile Include="Model\Project.cs" />
+    <Compile Include="Model\WindowLocation.cs" />
+    <Compile Include="Model\WindowPositionChangeRequestedEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WindowService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

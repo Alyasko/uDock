@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using uDock.Core.Model;
 using uDock.Wpf.ViewModel;
@@ -18,6 +20,12 @@ namespace uDock.Wpf.View
             InitializeComponent();
 
             _settingsViewModel = DataContext as SettingsViewModel;
+            _settingsViewModel.LinkItemsCollectionChanged += SettingsViewModelOnLinkItemsCollectionChanged;
+        }
+
+        private void SettingsViewModelOnLinkItemsCollectionChanged(object sender, EventArgs e)
+        {
+            ((CollectionViewSource)this.Resources["LinksCollectionView"]).View.Refresh();
         }
 
         private void TbTitle_OnMouseDown(object sender, MouseButtonEventArgs e)

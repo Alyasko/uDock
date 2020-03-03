@@ -1,15 +1,11 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using LiteDB;
-using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using uDock.Core;
 using uDock.Core.Model;
@@ -32,14 +28,21 @@ namespace uDock.Wpf.ViewModel
     {
         private readonly ApplicationState _app;
 
+        public LinkService LinkService { get; }
+        public WindowService WindowService { get; }
+
         public ObservableCollection<LinkItem> LinkItems => _app.LinkItems;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(ApplicationState app)
+        public MainViewModel(ApplicationState app,
+            LinkService linkService,
+            WindowService windowService)
         {
             _app = app;
+            LinkService = linkService;
+            WindowService = windowService;
         }
 
         private LinkItem _selectedLink;
@@ -68,50 +71,37 @@ namespace uDock.Wpf.ViewModel
 
         public ICommand CloseCommand => new RelayCommand(() =>
         {
-            App.Current.Shutdown();
+            Application.Current.Shutdown();
         });
 
-        public ICommand TrayIconClickCommand => new RelayCommand(() =>
-        {
-            if (WindowState == WindowState.Normal)
-            {
-                WindowState = WindowState.Minimized;
-            }
-            else
-            {
-                WindowState = WindowState.Normal;
-            }
-        });
-
-        private void GetUrisToExecute(LinkItem rootItem, List<string> uris)
-        {
-            if (rootItem.Children.Count == 0)
-            {
-                if (!string.IsNullOrWhiteSpace(rootItem.Uri))
-                    uris.Add(rootItem.Uri);
-            }
-            else
-            {
-                foreach (var item in rootItem.Children)
-                {
-                    GetUrisToExecute(item, uris);
-                }
-            }
-        }
 
         public void ExecuteLink()
         {
-            if (SelectedLink == null)
+            if(SelectedLink == null)
                 return;
 
-            var uris = new List<string>();
-            GetUrisToExecute(SelectedLink, uris);
+            try
+            {
+                Process.Start(SelectedLink.Uri);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                MessageBox.Show($"Unable to start link {SelectedLink.Uri}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public ICommand RunLinkCommand => new RelayCommand(ExecuteLink);
+
+        private void ExecuteMultiple()
+        {
+            var links = LinkService.GetChildLinks(SelectedLink).ToArray();
 
             var proceed = true;
 
-            if (uris.Count > 5)
+            if (links.Length > 5)
             {
-                if (MessageBox.Show($"Are you sure you want to start {uris.Count} processes?", "Question",
+                if (MessageBox.Show($"Are you sure you want to start {links.Length} processes?", "Question",
                         MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                 {
                     proceed = false;
@@ -120,22 +110,27 @@ namespace uDock.Wpf.ViewModel
 
             if (proceed)
             {
-                foreach (var uri in uris)
+                foreach (var link in links)
                 {
                     Task.Run(() =>
                     {
                         try
                         {
-                            Process.Start(uri);
+                            Process.Start(link.Uri);
                         }
                         catch (Exception e)
                         {
                             Debug.WriteLine(e.Message);
-                            MessageBox.Show($"Unable to start link {uri}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Unable to start link {link}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     });
                 }
             }
         }
+
+        public ICommand OpenLinkDirectoryCommand => new RelayCommand(() =>
+        {
+            LinkService.OpenContainingDirectory(SelectedLink);
+        });
     }
 }

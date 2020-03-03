@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,7 @@ namespace uDock.Core
         public ApplicationState()
         {
             DataDirectory = GetDataDirectory();
+            Debug.WriteLine($"Using data storage path: {DataDirectory}");
         }
 
         private DirectoryInfo GetDataDirectory()
@@ -36,6 +38,12 @@ namespace uDock.Core
                 Directory.CreateDirectory(path);
 
             return new DirectoryInfo(path);
+        }
+
+        public void LoadProject(string path)
+        {
+            Project = Project.Load(path);
+            LinkItems.Clear();
         }
 
         public Project Project { get; set; }

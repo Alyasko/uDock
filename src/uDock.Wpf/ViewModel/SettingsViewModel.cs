@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -27,6 +28,8 @@ namespace uDock.Wpf.ViewModel
 
         public ObservableCollection<LinkItem> LinkItems => _app.LinkItems;
         private readonly Dictionary<ObjectId, LinkItem> _linksDict = new Dictionary<ObjectId, LinkItem>();
+
+        public event EventHandler LinkItemsCollectionChanged;
 
         private LinkItem _selectedLink;
 
@@ -75,6 +78,33 @@ namespace uDock.Wpf.ViewModel
             SelectedLink.Children.Add(CreateNewLinkItem(SelectedLink));
         });
 
+        public ICommand MoveLinkUpCommand => new RelayCommand(() =>
+        {
+            if(SelectedLink == null)
+                return;
+
+            if (SelectedLink.ParentId == null)
+            {
+                var index = LinkItems.IndexOf(SelectedLink);
+                var newIndex = index > 0 ? index - 1 : 0;
+
+                LinkItems.Move(index, newIndex);
+                LinkItemsCollectionChanged.Invoke(this, EventArgs.Empty);
+                //SelectedLink = LinkItems[newIndex];
+            }
+            else
+            {
+
+            }
+
+
+        });
+
+        public ICommand MoveLinkDownCommand => new RelayCommand(() =>
+        {
+
+        });
+
         public ICommand CloseCommand => new RelayCommand(() =>
         {
             App.Current.Shutdown();
@@ -88,10 +118,14 @@ namespace uDock.Wpf.ViewModel
             if (ofd.ShowDialog().Value)
             {
                 var file = ofd.FileName;
-                _app.Project = Project.Load(file);
+
+                _app.LoadProject(file);
+                _linksDict.Clear();
+
                 foreach (var item in _app.Project.Items)
                 {
                     LinkItems.Add(item);
+                    _linksDict.Add(item.Id, item);
                 }
             }
         });

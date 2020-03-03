@@ -4,10 +4,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:model="clr-namespace:uDock.Core.Model;assembly=uDock.Core"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
         x:Name="WindowSettings"
         DataContext="{Binding Settings, Source={StaticResource Locator}}"
         Title="UDock Settings" Height="383.6" Width="590.4">
+    <Window.Resources>
+        <ResourceDictionary>
+            <CollectionViewSource x:Key="LinksCollectionView" x:Name="CollectionViewLinks" Source="{Binding LinkItems}">
+            </CollectionViewSource>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -28,7 +37,7 @@
 
             <TextBox Visibility="Collapsed" Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="0" Padding="6 3" Margin="10 5">Filter</TextBox>
 
-            <TreeView AllowDrop="True" Drop="TrvLinks_OnDrop" SelectedItemChanged="TrvLinks_OnSelectedItemChanged" ItemsSource="{Binding LinkItems}" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10" Name="TrvLinks">
+            <TreeView AllowDrop="True"  Drop="TrvLinks_OnDrop" SelectedItemChanged="TrvLinks_OnSelectedItemChanged" ItemsSource="{Binding Source={StaticResource LinksCollectionView}}" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="10" Name="TrvLinks">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type model:LinkItem}" ItemsSource="{Binding Children}">
                         <Grid Margin="1">
@@ -36,9 +45,8 @@
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button x:Name="BtnRunLink" Click="ButtonBase_OnClick" Background="Transparent" Padding="5 3" BorderThickness="0">
-                                <Image Width="16" Source="/Resources/arrows.png"></Image>
-                            </Button>
+                            <!--<Button x:Name="BtnRunLink" Click="ButtonBase_OnClick" Background="Transparent" Padding="5 3" BorderThickness="0">
+                            </Button>-->
                             <TextBlock Grid.Column="1" Padding="8 3" Text="{Binding Display}" />
                         </Grid>
                     </HierarchicalDataTemplate>
@@ -49,14 +57,11 @@
                     </Style>
                 </TreeView.ItemContainerStyle>
             </TreeView>
-
-
-
         </Grid>
 
         <Grid Grid.Column="1" Width="250">
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
 
@@ -90,16 +95,26 @@
                         <TextBox x:Name="TbUri" Margin="5 5 5 5" Padding="6 3" Text="{Binding SelectedLink.Uri, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                     </StackPanel>
 
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Command="{Binding AddCategoryCommand}" x:Name="BtnCategoryAdd" Margin="5 5 0 5" Padding="15 3">+</Button>
-                        <Button Grid.Column="1" Command="{Binding AddSubCategoryCommand}" x:Name="BtnSubCategoryAdd" Margin="5 5 0 5" Padding="15 3">+ Sub</Button>
-                        <Button Grid.Column="2" Command="{Binding RemoveCategoryCommand}" x:Name="BtnCategoryRemove" Margin="5 5 5 5" Padding="15 3">Delete</Button>
-                    </Grid>
+                    <StackPanel Grid.Row="1" Orientation="Vertical">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Command="{Binding AddCategoryCommand}" x:Name="BtnCategoryAdd" Margin="5 5 0 5" Padding="15 3">+</Button>
+                            <Button Grid.Column="1" Command="{Binding AddSubCategoryCommand}" x:Name="BtnSubCategoryAdd" Margin="5 5 0 5" Padding="15 3">+ Sub</Button>
+                            <Button Grid.Column="2" Command="{Binding RemoveCategoryCommand}" x:Name="BtnCategoryRemove" Margin="5 5 5 5" Padding="15 3">Delete</Button>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Command="{Binding MoveLinkUpCommand}" x:Name="BtnMoveUp" Margin="5 5 0 5" Padding="15 3">Move Up</Button>
+                            <Button Grid.Column="1" Command="{Binding MoveLinkDownCommand}" x:Name="BtnMoveDown" Margin="5 5 0 5" Padding="15 3">Move Down</Button>
+                        </Grid>
+                    </StackPanel>
                 </Grid>
             </GroupBox>
         </Grid>
